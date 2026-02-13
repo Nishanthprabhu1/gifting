@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 1;" vr-mode-ui="enabled: false" cursor="fuse: false; rayOrigin: mouse;">
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-entity mindar-image-target="targetIndex: 1">
+        <a-image id="gallery-img" src="assets/pic1.jpg" width="1" height="1" position="0 0 0"></a-image>
+      </a-entity>
+    </a-scene>
+    <script>
+      const images = ["assets/pic1.jpg", "assets/pic2.jpg", "assets/pic3.jpg"];
+      let current = 0;
+      const imgEl = document.querySelector("#gallery-img");
+      imgEl.addEventListener("click", () => {
+        current = (current + 1) % images.length;
+        imgEl.setAttribute("src", images[current]);
+      });
+    </script>
+  </body>
+</html>

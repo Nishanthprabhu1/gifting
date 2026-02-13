@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 3;" vr-mode-ui="enabled: false">
+      <a-assets>
+        <audio id="track" src="assets/music.mp3" preload="auto"></audio>
+      </a-assets>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-entity mindar-image-target="targetIndex: 3" id="audio-handler">
+        <a-image src="https://cdn-icons-png.flaticon.com/512/4430/4430494.png" width="0.5" height="0.5"
+                 animation="property: scale; to: 1.1 1.1 1.1; dur: 500; dir: alternate; loop: true"></a-image>
+      </a-entity>
+    </a-scene>
+    <script>
+      const target = document.querySelector('#audio-handler');
+      const audio = document.querySelector("#track");
+      target.addEventListener("targetFound", () => audio.play());
+      target.addEventListener("targetLost", () => audio.pause());
+    </script>
+  </body>
+</html>
