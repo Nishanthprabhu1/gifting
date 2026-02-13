@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jewels-AI | AR Chroma Key</title>
+  <title>JEWELS-AI | AR Chroma Key</title>
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    body { margin: 0; overflow: hidden; }
-    /* Play/Pause Button for User Interaction */
-    #ui-panel {
-      position: absolute; bottom: 20px; left: 50%; 
-      transform: translateX(-50%); z-index: 100; display: none;
+    body { margin: 0; font-family: 'Poppins', sans-serif; background: #000; overflow: hidden; }
+
+    /* UI for Play/Pause */
+    .button-panel {
+      position: absolute; bottom: 20px; left: 50%;
+      transform: translateX(-50%); display: none; z-index: 100;
     }
-    .btn {
-      padding: 12px 24px; border-radius: 8px; border: none;
-      background: #5E0F8B; color: white; font-weight: bold; cursor: pointer;
+
+    .plan-button {
+      padding: 12px 24px; font-size: 15px; font-weight: bold; border: none;
+      border-radius: 8px; background-color: #5E0F8B; color: #fff;
+      cursor: pointer; min-width: 160px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
-    .back-btn {
-      position: absolute; top: 10px; left: 10px; z-index: 100;
-      padding: 8px 15px; background: rgba(0,0,0,0.5); color: white;
-      text-decoration: none; border-radius: 5px; font-size: 12px;
+
+    /* Back to Menu Link */
+    .back-nav {
+      position: absolute; top: 15px; left: 15px; z-index: 200;
+      color: white; text-decoration: none; background: rgba(0,0,0,0.6);
+      padding: 8px 15px; border-radius: 20px; font-size: 13px;
+      border: 1px solid #5E0F8B;
     }
   </style>
 </head>
 <body>
 
-  <a href="index.html" class="back-btn">⬅ Back to Menu</a>
+  <a href="index.html" class="back-nav">🏠 Back to Portfolio</a>
 
-  <div id="ui-panel">
-    <button id="toggleBtn" class="btn">▶️ Play Video</button>
+  <div class="button-panel" id="ui-panel">
+    <button class="plan-button" id="toggleButton">▶️ Play Video</button>
   </div>
 
   <a-scene 
@@ -40,22 +46,24 @@
     device-orientation-permission-ui="enabled: false">
     
     <a-assets>
-      <video id="vid" src="assets/video1.mp4" loop="true" crossorigin="anonymous" playsinline></video>
+      <video id="video-src" src="assets/video1.mp4" loop="true" crossorigin="anonymous" playsinline></video>
     </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="objects: .clickable"></a-camera>
 
-    <a-entity mindar-image-target="targetIndex: 0" id="target">
+    <a-entity mindar-image-target="targetIndex: 0" id="target-entity">
       <a-video 
-        src="#vid" 
+        id="video-screen"
+        src="#video-src" 
         width="1" height="0.6" 
+        position="0 0 0"
         material="shader: chromakey; color: 0.1 0.9 0.1; threshold: 0.3; smoothness: 0.05">
       </a-video>
     </a-entity>
   </a-scene>
 
   <script>
-    // --- YOUR EXACT CHROMA KEY SHADER ---
+    // --- 1. YOUR CHROMA KEY SHADER REGISTERED ---
     AFRAME.registerShader('chromakey', {
       schema: {
         src: {type: 'map'},
@@ -103,30 +111,36 @@
       }
     });
 
-    // --- LOGIC FOR TARGET DETECTION & BUTTONS ---
-    const target = document.querySelector('#target');
-    const video = document.querySelector("#vid");
-    const ui = document.querySelector("#ui-panel");
-    const btn = document.querySelector("#toggleBtn");
+    // --- 2. CONTROLS & SECURITY ---
+    const videoEl = document.querySelector('#video-src');
+    const targetEl = document.querySelector('#target-entity');
+    const panel = document.querySelector('#ui-panel');
+    const toggleButton = document.querySelector('#toggleButton');
 
-    target.addEventListener("targetFound", () => {
-      ui.style.display = "block";
+    targetEl.addEventListener('targetFound', () => {
+      panel.style.display = 'block';
     });
 
-    target.addEventListener("targetLost", () => {
-      ui.style.display = "none";
-      video.pause();
-      btn.textContent = "▶️ Play Video";
+    targetEl.addEventListener('targetLost', () => {
+      panel.style.display = 'none';
+      videoEl.pause();
+      toggleButton.textContent = "▶️ Play Video";
     });
 
-    btn.addEventListener('click', () => {
-      if (video.paused) {
-        video.play();
-        btn.textContent = "⏸ Pause Video";
+    toggleButton.addEventListener('click', () => {
+      if (videoEl.paused) {
+        videoEl.play();
+        toggleButton.textContent = "⏸ Pause Video";
       } else {
-        video.pause();
-        btn.textContent = "▶️ Play Video";
+        videoEl.pause();
+        toggleButton.textContent = "▶️ Play Video";
       }
+    });
+
+    // Security Features from your original index.html
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) e.preventDefault();
     });
   </script>
 </body>
