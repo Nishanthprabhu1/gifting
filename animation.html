@@ -4,32 +4,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
-    
     <style>
-        body { margin: 0; overflow: hidden; }
+        body { margin: 0; overflow: hidden; font-family: 'Poppins', sans-serif; }
         .a-enter-vr, .a-enter-ar { display: none !important; }
-        
-        /* Premium Back Button */
         .back-nav {
             position: absolute; top: 20px; left: 20px; z-index: 200;
-            color: #D4AF37; text-decoration: none; background: rgba(0,0,0,0.7);
-            padding: 10px 20px; border-radius: 50px; font-family: 'Poppins', sans-serif;
-            font-size: 12px; border: 1px solid #D4AF37; letter-spacing: 1px;
-        }
-
-        /* Instructions */
-        #hint {
-            position: absolute; bottom: 30px; width: 100%; text-align: center;
-            color: #D4AF37; font-family: 'Poppins', sans-serif; z-index: 100;
-            display: none; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            color: #D4AF37; text-decoration: none; background: rgba(0,0,0,0.8);
+            padding: 10px 20px; border-radius: 50px; font-size: 12px;
+            border: 1px solid #D4AF37;
         }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="back-nav">🏠 MENU</a>
-    <div id="hint">✨ Scanning your message... ✨</div>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 2;" 
@@ -40,35 +28,41 @@
 
         <a-entity mindar-image-target="targetIndex: 2" id="text-target">
             
-            <a-entity position="0 0.1 0" animation="property: position; to: 0 0.2 0; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine">
+            <a-entity id="orbit-container" position="0 0 0" scale="0 0 0"
+                      animation__rotate="property: rotation; to: 0 360 0; dur: 20000; loop: true; easing: linear"
+                      animation__float="property: position; from: 0 -0.05 0; to: 0 0.05 0; dur: 3000; dir: alternate; loop: true; easing: easeInOutSine"
+                      animation__pop="property: scale; from: 0 0 0; to: 1 1 1; dur: 1200; easing: easeOutBack; startEvents: targetFound">
                 
-                <a-plane width="1.6" height="1" position="0 0 -0.01" 
-                         material="color: #1a1a1a; opacity: 0.8; transparent: true; metalness: 0.5; roughness: 0.2">
-                </a-plane>
+                <a-entity position="0 0 0.6">
+                    <a-text value="Happy Birthday! Wishing you endless happiness, joy, and a year full of wonders! Captured with love just for you." 
+                            color="#000" align="center" width="1.2" wrap-count="25" position="0.005 -0.005 -0.01"></a-text>
+                    <a-text value="Happy Birthday! Wishing you endless happiness, joy, and a year full of wonders! Captured with love just for you." 
+                            color="#FFF" align="center" width="1.2" wrap-count="25"></a-text>
+                </a-entity>
 
-                <a-rect width="1.62" height="1.02" position="0 0 -0.02" color="#D4AF37"></a-rect>
+                <a-entity position="0 0 -0.6" rotation="0 180 0">
+                    <a-text value="May your day be as bright as your smile. A special moment for a special person." 
+                            color="#000" align="center" width="1.2" wrap-count="25" position="0.005 -0.005 -0.01"></a-text>
+                    <a-text value="May your day be as bright as your smile. A special moment for a special person." 
+                            color="#FFF" align="center" width="1.2" wrap-count="25"></a-text>
+                </a-entity>
 
-                
+                <a-entity position="0.6 0 0" rotation="0 90 0">
+                    <a-text value="Enjoy your gift! Scan more for surprises." 
+                            color="#000" align="center" width="1" wrap-count="20" position="0.005 -0.005 -0.01"></a-text>
+                    <a-text value="Enjoy your gift! Scan more for surprises." 
+                            color="#FFF" align="center" width="1" wrap-count="20"></a-text>
+                </a-entity>
 
-                <a-text 
-                    id="main-message"
-                    value="" 
-                    color="#FFFFFF" 
-                    align="center" 
-                    width="1.4" 
-                    wrap-count="28"
-                    line-height="50"
-                    position="0 -0.05 0.05"
-                    font="https://cdn.aframe.io/fonts/Exo2SemiBold.fnt">
-                </a-text>
+                <a-entity position="-0.6 0 0" rotation="0 -90 0">
+                    <a-text value="Jewels-AI: Making memories magical." 
+                            color="#000" align="center" width="1" wrap-count="20" position="0.005 -0.005 -0.01"></a-text>
+                    <a-text value="Jewels-AI: Making memories magical." 
+                            color="#FFF" align="center" width="1" wrap-count="20"></a-text>
+                </a-entity>
 
-                
+                <a-ring color="#D4AF37" radius-inner="0.59" radius-outer="0.6" rotation="90 0 0" opacity="0.5"></a-ring>
 
-            </a-entity>
-
-            <a-entity position="0 0 0" animation="property: rotation; to: 0 360 0; dur: 15000; loop: true; easing: linear">
-                <a-entity geometry="primitive: sphere; radius: 0.01" material="color: #D4AF37; emissive: #D4AF37; emissiveIntensity: 2" position="1 0.5 0"></a-entity>
-                <a-entity geometry="primitive: sphere; radius: 0.01" material="color: #FFF; emissive: #FFF; emissiveIntensity: 2" position="-1 -0.5 0.3"></a-entity>
             </a-entity>
 
         </a-entity>
@@ -76,34 +70,16 @@
 
     <script>
         const target = document.querySelector('#text-target');
-        const messageEl = document.querySelector('#main-message');
-        const hint = document.querySelector('#hint');
-
-        // Your 20-30 word message
-        const fullText = "May your day be as bright as your smile and as lovely as your heart. This is a special moment captured just for you. Wishing you endless happiness and a year full of wonders! Happy Birthday!";
-
-        let charIndex = 0;
-        let isTyping = false;
+        const orbitContainer = document.querySelector('#orbit-container');
 
         target.addEventListener('targetFound', () => {
-            hint.style.display = 'block';
-            if (!isTyping) {
-                typeWriter();
-            }
+            orbitContainer.emit('targetFound'); 
         });
 
         target.addEventListener('targetLost', () => {
-            hint.style.display = 'none';
+            // Smoothly shrink away when lost
+            orbitContainer.setAttribute('scale', '0 0 0'); 
         });
-
-        function typeWriter() {
-            isTyping = true;
-            if (charIndex < fullText.length) {
-                messageEl.setAttribute('value', fullText.substring(0, charIndex + 1));
-                charIndex++;
-                setTimeout(typeWriter, 50); // Speed of typing
-            }
-        }
     </script>
 </body>
 </html>
