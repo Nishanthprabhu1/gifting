@@ -7,6 +7,9 @@
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Poppins', sans-serif; }
         
+        /* FORCE HIDE VR/AR BUTTONS VIA CSS */
+        .a-enter-vr, .a-enter-ar { display: none !important; }
+
         /* Premium Tilt Guide */
         .tilt-guide {
             position: absolute; bottom: 40px; width: 100%;
@@ -56,10 +59,9 @@
     </div>
 
     <a-scene 
-  mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 1;" 
-  vr-mode-ui="enabled: false" 
-  device-orientation-permission-ui="enabled: false">
-  
+        mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 1;" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
         
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
@@ -78,18 +80,16 @@
     <script>
         const pics = ["assets/pic1.jpg", "assets/pic2.jpg", "assets/pic3.jpg", "assets/pic4.jpg", "assets/pic5.jpg"];
         let currentIdx = 0;
-        let canTilt = true; // Prevents fast scrolling
+        let canTilt = true; 
 
         const imgEl = document.querySelector('#display-img');
         const targetEl = document.querySelector('#gift-target');
         const guide = document.querySelector('#guide');
         const counterEl = document.querySelector('#imgCounter');
 
-        // Logic for Target Detection
         targetEl.addEventListener('targetFound', () => { guide.style.display = 'flex'; });
         targetEl.addEventListener('targetLost', () => { guide.style.display = 'none'; });
 
-        // MOTION PERMISSION LOGIC (Required for iPhone)
         function requestMotionPermission() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
@@ -106,16 +106,15 @@
 
         function handleTilt(event) {
             if (!canTilt) return;
+            let tiltValue = event.gamma; 
 
-            let tiltRight = event.gamma; // Range -90 to 90
-
-            if (tiltRight > 25) { // TILTED RIGHT
+            if (tiltValue > 25) { 
                 canTilt = false;
                 currentIdx = (currentIdx + 1) % pics.length;
                 imgEl.emit('slide-right');
                 updateContent();
             } 
-            else if (tiltRight < -25) { // TILTED LEFT
+            else if (tiltValue < -25) { 
                 canTilt = false;
                 currentIdx = (currentIdx - 1 + pics.length) % pics.length;
                 imgEl.emit('slide-left');
@@ -126,10 +125,7 @@
         function updateContent() {
             imgEl.setAttribute('src', pics[currentIdx]);
             counterEl.innerText = `${currentIdx + 1} / ${pics.length}`;
-            
             if (window.navigator.vibrate) window.navigator.vibrate(50);
-
-            // Re-enable tilt after a short delay so images don't flip too fast
             setTimeout(() => { canTilt = true; }, 800);
         }
     </script>
