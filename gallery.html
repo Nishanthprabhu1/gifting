@@ -7,34 +7,52 @@
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Poppins', sans-serif; }
         
-        /* Navigation Buttons */
-        .nav-container {
-            position: absolute; bottom: 30px; width: 100%;
-            display: none; justify-content: center; align-items: center; gap: 40px;
-            z-index: 1000;
+        /* Premium Tilt Guide */
+        .tilt-guide {
+            position: absolute; bottom: 40px; width: 100%;
+            display: none; flex-direction: column; align-items: center;
+            z-index: 1000; color: #D4AF37;
         }
-        .nav-btn {
-            width: 60px; height: 60px; background: rgba(94, 15, 139, 0.8);
-            color: white; border: none; border-radius: 50%;
-            font-size: 24px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        
+        .tilt-icon {
+            font-size: 30px; animation: tilt-move 2s infinite ease-in-out;
         }
-        .nav-btn:active { transform: scale(0.9); }
 
-        .back-nav {
-            position: absolute; top: 15px; left: 15px; z-index: 200;
-            color: white; text-decoration: none; background: rgba(0,0,0,0.6);
-            padding: 8px 15px; border-radius: 20px; font-size: 13px;
+        @keyframes tilt-move {
+            0% { transform: rotate(-20deg); }
+            50% { transform: rotate(20deg); }
+            100% { transform: rotate(-20deg); }
+        }
+
+        .counter {
+            background: rgba(94, 15, 139, 0.8); color: white;
+            padding: 8px 20px; border-radius: 30px; margin-top: 10px;
+            font-size: 14px; border: 1px solid #D4AF37;
+        }
+
+        /* Essential for iOS Tilt Permission */
+        #permission-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .perm-btn {
+            padding: 15px 30px; background: #5E0F8B; color: white;
+            border: none; border-radius: 10px; font-weight: bold; cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-nav">🏠 Menu</a>
+    <div id="permission-screen">
+        <p style="color: white; text-align: center;">To use Tilt Navigation,<br>we need sensor access.</p>
+        <button class="perm-btn" onclick="requestMotionPermission()">Start Experience</button>
+    </div>
 
-    <div class="nav-container" id="controls">
-        <button class="nav-btn" id="prevBtn">❮</button>
-        <button class="nav-btn" id="nextBtn">❯</button>
+    <div class="tilt-guide" id="guide">
+        <div class="tilt-icon">📱</div>
+        <div class="counter" id="imgCounter">1 / 5</div>
+        <p style="font-size: 12px; margin-top: 5px;">Tilt Phone Left or Right</p>
     </div>
 
     <a-scene mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 1;" 
@@ -45,57 +63,71 @@
         <a-entity mindar-image-target="targetIndex: 1" id="gift-target">
             <a-image id="display-img" 
                      src="assets/pic1.jpg" 
-                     width="1" height="1" 
+                     width="1" height="1.2" 
                      position="0 0 0"
-                     animation="property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack">
+                     animation__slide="property: position; from: -0.5 0 0; to: 0 0 0; dur: 500; startEvents: slide-left"
+                     animation__slideright="property: position; from: 0.5 0 0; to: 0 0 0; dur: 500; startEvents: slide-right"
+                     animation__fade="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: slide-left, slide-right">
             </a-image>
         </a-entity>
     </a-scene>
 
     <script>
-        // Add all your gift receiver photos here
-        const pics = [
-            "assets/pic1.jpg", 
-            "assets/pic2.jpg", 
-            "assets/pic3.jpg",
-            "assets/pic4.jpg",
-            "assets/pic5.jpg"
-        ];
-        
+        const pics = ["assets/pic1.jpg", "assets/pic2.jpg", "assets/pic3.jpg", "assets/pic4.jpg", "assets/pic5.jpg"];
         let currentIdx = 0;
+        let canTilt = true; // Prevents fast scrolling
+
         const imgEl = document.querySelector('#display-img');
         const targetEl = document.querySelector('#gift-target');
-        const controls = document.querySelector('#controls');
+        const guide = document.querySelector('#guide');
+        const counterEl = document.querySelector('#imgCounter');
 
-        // Show buttons only when the gift is scanned
-        targetEl.addEventListener('targetFound', () => {
-            controls.style.display = 'flex';
-        });
+        // Logic for Target Detection
+        targetEl.addEventListener('targetFound', () => { guide.style.display = 'flex'; });
+        targetEl.addEventListener('targetLost', () => { guide.style.display = 'none'; });
 
-        targetEl.addEventListener('targetLost', () => {
-            controls.style.display = 'none';
-        });
-
-        // Next Button Logic
-        document.querySelector('#nextBtn').addEventListener('click', () => {
-            currentIdx = (currentIdx + 1) % pics.length;
-            updateImage();
-        });
-
-        // Previous Button Logic
-        document.querySelector('#prevBtn').addEventListener('click', () => {
-            currentIdx = (currentIdx - 1 + pics.length) % pics.length;
-            updateImage();
-        });
-
-        function updateImage() {
-            // Add a small scale-down effect when changing
-            imgEl.setAttribute('animation', 'property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 300');
-            imgEl.setAttribute('src', pics[currentIdx]);
-            
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate(30); // Gentle feedback
+        // MOTION PERMISSION LOGIC (Required for iPhone)
+        function requestMotionPermission() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('deviceorientation', handleTilt);
+                        }
+                    });
+            } else {
+                window.addEventListener('deviceorientation', handleTilt);
             }
+            document.getElementById('permission-screen').style.display = 'none';
+        }
+
+        function handleTilt(event) {
+            if (!canTilt) return;
+
+            let tiltRight = event.gamma; // Range -90 to 90
+
+            if (tiltRight > 25) { // TILTED RIGHT
+                canTilt = false;
+                currentIdx = (currentIdx + 1) % pics.length;
+                imgEl.emit('slide-right');
+                updateContent();
+            } 
+            else if (tiltRight < -25) { // TILTED LEFT
+                canTilt = false;
+                currentIdx = (currentIdx - 1 + pics.length) % pics.length;
+                imgEl.emit('slide-left');
+                updateContent();
+            }
+        }
+
+        function updateContent() {
+            imgEl.setAttribute('src', pics[currentIdx]);
+            counterEl.innerText = `${currentIdx + 1} / ${pics.length}`;
+            
+            if (window.navigator.vibrate) window.navigator.vibrate(50);
+
+            // Re-enable tilt after a short delay so images don't flip too fast
+            setTimeout(() => { canTilt = true; }, 800);
         }
     </script>
 </body>
