@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        .ui { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 100; display: none; }
+        .btn { padding: 12px 24px; background: #5E0F8B; color: white; border: none; border-radius: 8px; font-weight: bold; }
+        .back { position: absolute; top: 10px; left: 10px; z-index: 100; color: white; text-decoration: none; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back">🏠 Back</a>
+    <div class="ui" id="ui"><button class="btn" id="btn">▶️ Play Video</button></div>
+    
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 0;" vr-mode-ui="enabled: false">
+        <a-assets><video id="v" src="assets/video1.mp4" loop crossorigin="anonymous" playsinline></video></a-assets>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-entity mindar-image-target="targetIndex: 0" id="t">
+            <a-entity geometry="primitive: plane; width: 1; height: 1" material="shader: chromakey; src: #v; color: 0.1 0.9 0.1; threshold: 0.3; smoothness: 0.05"></a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        AFRAME.registerShader('chromakey', {
+            schema: {src: {type: 'map'}, color: {type: 'color', default: '#00FF00'}, threshold: {type: 'number', default: 0.3}, smoothness: {type: 'number', default: 0.05}},
+            init: function(data) {
+                this.material = new THREE.ShaderMaterial({
+                    uniforms: {tex: {value: null}, keyColor: {value: new THREE.Color(data.color)}, similarity: {value: data.threshold}, smoothness: {value: data.smoothness}},
+                    vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+                    fragmentShader: `uniform sampler2D tex; uniform vec3 keyColor; uniform float similarity; uniform float smoothness; varying vec2 vUv; void main() { vec4 videoColor = texture2D(tex, vUv); float diff = distance(videoColor.rgb, keyColor); float alpha = smoothstep(similarity, similarity + smoothness, diff); if (alpha < 0.1) discard; gl_FragColor = vec4(videoColor.rgb, alpha); }`,
+                    transparent: true
+                });
+            },
+            update: function(data) { if (data.src) this.material.uniforms.tex.value = data.src; }
+        });
+
+        const v = document.querySelector('#v');
+        const t = document.querySelector('#t');
+        const ui = document.querySelector('#ui');
+        const btn = document.querySelector('#btn');
+
+        t.addEventListener('targetFound', () => { ui.style.display = 'block'; });
+        t.addEventListener('targetLost', () => { ui.style.display = 'none'; v.pause(); });
+        btn.addEventListener('click', () => { if (v.paused) { v.play(); btn.innerText = "⏸ Pause"; } else { v.pause(); btn.innerText = "▶️ Play"; } });
+    </script>
+</body>
+</html>

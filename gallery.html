@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
+<body>
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 1;" vr-mode-ui="enabled: false" cursor="fuse: false; rayOrigin: mouse;">
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-image id="img" src="assets/pic1.jpg" width="1" height="1" class="clickable"></a-image>
+        </a-entity>
+    </a-scene>
+    <script>
+        const pics = ["assets/pic1.jpg", "assets/pic2.jpg"];
+        let i = 0;
+        document.querySelector('#img').addEventListener('click', function() {
+            i = (i + 1) % pics.length;
+            this.setAttribute('src', pics[i]);
+        });
+    </script>
+</body>
+</html>
