@@ -4,20 +4,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Poppins', sans-serif; }
+        body { margin: 0; overflow: hidden; }
         .a-enter-vr, .a-enter-ar { display: none !important; }
+        
+        /* Premium Back Button */
         .back-nav {
             position: absolute; top: 20px; left: 20px; z-index: 200;
-            color: white; text-decoration: none; background: rgba(0,0,0,0.5);
-            padding: 10px 18px; border-radius: 30px; font-size: 12px;
-            border: 1px solid #D4AF37;
+            color: #D4AF37; text-decoration: none; background: rgba(0,0,0,0.7);
+            padding: 10px 20px; border-radius: 50px; font-family: 'Poppins', sans-serif;
+            font-size: 12px; border: 1px solid #D4AF37; letter-spacing: 1px;
+        }
+
+        /* Instructions */
+        #hint {
+            position: absolute; bottom: 30px; width: 100%; text-align: center;
+            color: #D4AF37; font-family: 'Poppins', sans-serif; z-index: 100;
+            display: none; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
 
     <a href="index.html" class="back-nav">🏠 MENU</a>
+    <div id="hint">✨ Scanning your message... ✨</div>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; targetIndex: 2;" 
@@ -26,39 +38,83 @@
         
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity mindar-image-target="targetIndex: 2">
+        <a-entity mindar-image-target="targetIndex: 2" id="text-target">
             
-            <a-entity position="0 0.2 0.1" 
-                      animation="property: position; to: 0 0.3 0.1; dur: 1500; dir: alternate; loop: true; easing: easeInOutSine">
+            <a-entity position="0 0.1 0" animation="property: position; to: 0 0.2 0; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine">
                 
-                <a-text 
-                    value="Dearest Friend, wishing you a day filled with love, laughter, and endless joy. May this new year of your life bring you closer to all your dreams and aspirations. Happy Birthday!" 
-                    color="#D4AF37" 
-                    align="center" 
-                    width="1.5" 
-                    wrap-count="25"
-                    font="https://cdn.aframe.io/fonts/Exo2Bold.fnt">
-                </a-text>
-
-                <a-plane 
-                    color="#000" 
-                    opacity="0.6" 
-                    width="1.8" 
-                    height="1.2" 
-                    position="0 0 -0.05" 
-                    border="1px solid #D4AF37">
+                <a-plane width="1.6" height="1" position="0 0 -0.01" 
+                         material="color: #1a1a1a; opacity: 0.8; transparent: true; metalness: 0.5; roughness: 0.2">
                 </a-plane>
 
-                <a-ring color="#D4AF37" radius-inner="0.01" radius-outer="0.02" position="-0.85 0.55 0"></a-ring>
-                <a-ring color="#D4AF37" radius-inner="0.01" radius-outer="0.02" position="0.85 0.55 0"></a-ring>
+                <a-rect width="1.62" height="1.02" position="0 0 -0.02" color="#D4AF37"></a-rect>
+
+                <a-text value="A Special Message" 
+                        position="0 0.35 0.05" 
+                        align="center" 
+                        color="#D4AF37" 
+                        width="3"
+                        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt">
+                </a-text>
+
+                <a-text 
+                    id="main-message"
+                    value="" 
+                    color="#FFFFFF" 
+                    align="center" 
+                    width="1.4" 
+                    wrap-count="28"
+                    line-height="50"
+                    position="0 -0.05 0.05"
+                    font="https://cdn.aframe.io/fonts/Exo2SemiBold.fnt">
+                </a-text>
+
+                <a-text value="With Love, Jewels-AI" 
+                        position="0 -0.35 0.05" 
+                        align="center" 
+                        color="#D4AF37" 
+                        width="1.5">
+                </a-text>
+
             </a-entity>
 
-            <a-entity position="0 0 0" animation="property: rotation; to: 0 360 0; dur: 10000; loop: true; easing: linear">
-                <a-sphere position="1 0.5 0" radius="0.03" color="#5E0F8B"></a-sphere>
-                <a-sphere position="-1 -0.5 0.2" radius="0.02" color="#D4AF37"></a-sphere>
+            <a-entity position="0 0 0" animation="property: rotation; to: 0 360 0; dur: 15000; loop: true; easing: linear">
+                <a-entity geometry="primitive: sphere; radius: 0.01" material="color: #D4AF37; emissive: #D4AF37; emissiveIntensity: 2" position="1 0.5 0"></a-entity>
+                <a-entity geometry="primitive: sphere; radius: 0.01" material="color: #FFF; emissive: #FFF; emissiveIntensity: 2" position="-1 -0.5 0.3"></a-entity>
             </a-entity>
 
         </a-entity>
     </a-scene>
+
+    <script>
+        const target = document.querySelector('#text-target');
+        const messageEl = document.querySelector('#main-message');
+        const hint = document.querySelector('#hint');
+
+        // Your 20-30 word message
+        const fullText = "May your day be as bright as your smile and as lovely as your heart. This is a special moment captured just for you. Wishing you endless happiness and a year full of wonders! Happy Birthday!";
+
+        let charIndex = 0;
+        let isTyping = false;
+
+        target.addEventListener('targetFound', () => {
+            hint.style.display = 'block';
+            if (!isTyping) {
+                typeWriter();
+            }
+        });
+
+        target.addEventListener('targetLost', () => {
+            hint.style.display = 'none';
+        });
+
+        function typeWriter() {
+            isTyping = true;
+            if (charIndex < fullText.length) {
+                messageEl.setAttribute('value', fullText.substring(0, charIndex + 1));
+                charIndex++;
+                setTimeout(typeWriter, 50); // Speed of typing
+            }
+        }
+    </script>
 </body>
 </html>
